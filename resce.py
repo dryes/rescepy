@@ -20,13 +20,13 @@ import argparse,os,re,shutil,socket,sys,urllib.request
 from rescepy.cfv import CFV
 from rescepy.srr import SRR
 from rescepy.srs import SRS
-from rescepy.unrar import UNRAR
+from rescepy.unrar import UnRAR
 
 
 def init_argparse():
-	parser = argparse.ArgumentParser(description='automated ReScene reconstruction.', usage=os.path.basename(sys.argv[0]) + ' [--opts] input')
+	parser = argparse.ArgumentParser(description='automated srr/srs reconstruction.', usage=os.path.basename(sys.argv[0]) + ' [--opts] input1 [input2] ...')
 
-	parser.add_argument('input', nargs='?', help='dirname', default='')
+	parser.add_argument('input', nargs='*', help='dirname', default='')
 
 	parser.add_argument('--force', '-f', action='store_true', help='proceed if rars/samples already exist', default=False)
 
@@ -43,6 +43,16 @@ def init_argparse():
 
 	return vars(args)
 
+def dircheck(input):
+	if re.search(r'[._-](dir|id3|nfo|sample|(vob)?sub(title)?s?|track).?(fix|pack)[._-]', input, re.IGNORECASE) is not None:
+		print('%r detected as fix, skipping.' % (input))
+		return False
+	elif re.search(r'[._-](divx|xvid|[hx]264|wmv(hd)?)[._-]', input, re.IGNORECASE) is None:
+		print('%r not video release, skipping.' % (input))
+		return False
+
+	return True
+
 def prepare(input):
 	ds = []
 	for d in os.listdir():
@@ -58,7 +68,7 @@ def prepare(input):
 			except:
 				if len(str(sys.exc_info()[1])) > 0:
 					print(sys.exc_info()[1])
-					return False	
+				return False	
 
 	for d in ds:
 		try:
@@ -66,7 +76,7 @@ def prepare(input):
 		except:
 			if len(str(sys.exc_info()[1])) > 0:
 				print(sys.exc_info()[1])
-				return False
+			return False
 
 	if os.path.basename(os.getcwd()) != input:
 		try:
@@ -74,143 +84,97 @@ def prepare(input):
 		except:
 			if len(str(sys.exc_info()[1])) > 0:
 				print(sys.exc_info()[1])
-				return False
-
-	return True
-
-def srrdb(dirname, srrdir):
-	srrfile = os.path.join(srrdir, dirname + '.srr')
-
-	try:
-		socket.setdefaulttimeout(30)
-		urllib.request.urlretrieve('http://www.srrdb.com/download.php?release=%s' % (dirname), srrfile)
-	except:
-		if len(str(sys.exc_info()[1])) > 0:
-			print(sys.exc_info()[1])
 			return False
 
-	if os.path.getsize(srrfile) == 0 or not os.path.isfile(srrfile):
-		print('%r not found on srrdb.com' % (dirname))
-		try:
-			os.unlink(srrfile)
-		except:
-			if len(str(sys.exc_info()[1])) > 0:
-				print(sys.exc_info()[1])
-		return False	
-
-	return True
-
-def main():
-	args = init_argparse()
-
-	input = os.path.normpath(args['input'])
-	if not os.path.isdir(input):
-		return False
-	try:
-		os.chdir(input)
-	except:
-		if len(str(sys.exc_info()[1])) > 0:
-			print(sys.exc_info()[1])
-			return False
-
-	if args['sample_only'] == False:
-		if prepare(input) == False:
-			return False
-
-	if args['srr_dir'] == None:
-		srrdir = os.getcwd()
-	else:
-		srrdir = args['srr_dir']
-	if not os.path.isdir(srrdir):
-		try:
-			os.makedirs(srrdir)
-		except:
-			if len(str(sys.exc_info()[1])) > 0:
-				print(sys.exc_info()[1])
-				return False
-	dirname = os.path.dirname(input + os.sep)
-	srrfile = os.path.join(srrdir, dirname + '.srr')
-
+def getsrr(srrfile, dirname, srrdir):
 	if not os.path.isfile(srrfile):
 		if not srrdb(dirname, srrdir):
 			return False
 
-		if srrdir != os.getcwd():
-			try:
-				shutil.copy(srrfile, os.getcwd())
-			except:
-				if len(str(sys.exc_info()[1])) > 0:
-					print(sys.exc_info()[1])
-					return False
+	if srrdir != os.getcwd():
+		try:
+			shutil.copy(srrfile, os.getcwd())
+		except:
+			if len(str(sys.exc_info()[1])) > 0:
+				print(sys.exc_info()[1])
+			return False
 
-	srrfile = os.path.join(os.getcwd(), dirname + '.srr')
+def getsubslist():
+	subslist = []
+	for f in os.listdir(os.getcwd()):
+		if re.search(r'[._-](vob)?sub(title)?s?[._-]?.*\.(r(ar|\d+)|sfv|srt|idx|sub)$', f, re.IGNORECASE) is not None:
+			subslist.append(f)
 
-	srr = SRR(filename=srrfile, binary=args['srr_bin'])
-	if srr == False:
-		return False
-	srrlist = srr.list()
+	return sorted(subslist)
 
+def getrarlist(subslist):
 	rarlist = []
 	for f in os.listdir(os.getcwd()):
-		if re.search(r'\.(rar|[a-z]\d{2}|\d{3})$', f, re.IGNORECASE) is not None:
+		if f not in subslist and re.search(r'\.(rar|[a-z]\d{2}|\d{3})$', f, re.IGNORECASE) is not None:
 			rarlist.append(f)
 
+	return sorted(rarlist)
+
+def movesubs(subslist):
+	if len(subslist) > 0:
+		if not os.path.isdir(os.path.join(os.getcwd(), 'Subs')):
+			os.mkdir(os.path.join(os.getcwd(), 'Subs'))
+	for f in subslist:
+		try:
+			shutil.move(f, os.path.join(os.getcwd(), 'Subs', os.path.basename(f)))
+		except:
+			if len(str(sys.exc_info()[1])) > 0:
+				print(sys.exc_info()[1])
+			return False
+
+def rarexist(srrlist, rarlist):
 	rar = None
-	if os.path.isfile(os.path.join(os.getcwd(), srrlist[1][0].split('/')[-1])):
-		rar = srrlist[1][0].split('/')[-1]
+	if os.path.isfile(os.path.join(os.getcwd(), srrlist[2][0])):
+		rar = srrlist[2][0]
 	elif len(rarlist) > 0:
 		rar = rarlist[0]
 
-	if args['sample_only'] == False and rar is not None:
-		print('%r found, rars exist.' % (rar))
-		if srr.extract() == False:
-			return False
+	return rar
 
-		cfv = CFV(binary=args['cfv_bin'])
-		if cfv.verify() == True and args['force'] == False:
-			return True
-
-		if sorted(srrlist)[0] == sorted(rarlist)[0] and args['force'] == False:
-			return True
-
-		for f in set(srrlist[2] + rarlist):
-			if re.search(r'\.((part0?0?1\.)?rar|001)$', f, re.IGNORECASE) is not None:
-				unrar = UNRAR(filename=f.split('/')[-1], binary=args['unrar_bin'])
-				if unrar.unrar() == False:
-					return False
-
-		for f in set(srrlist[2] + rarlist):
-			try:
-				os.unlink(os.path.join(os.getcwd(), f.split('/')[-1]))
-			except:
-				if len(str(sys.exc_info()[1])) > 0:
-					print(sys.exc_info()[1])
-					return False
-	
-	if args['sample_only'] == False:
-		nf = 0
-		for f in srrlist[3]:
-			if not os.path.isfile(os.path.join(os.getcwd(), f)):
-				print('Input file: %r not found.' % (f))
-				nf = (nf+1)
-	
-	if args['sample_only'] == False and nf > 0:
+def rarsexist(rar, srr, rarlist, srrlist, args):
+	print('%r found, rars exist.' % (rar))
+	if srr.extract() == False:
 		return False
 
-	if args['sample_only'] == False:
-		if srr.reconstruct() == False:
+	if sfvverify(args) != False and args['force'] == False:
+		return True
+
+	rarlist = getrarlist(getsubslist())
+	if sorted(srrlist)[0] == sorted(rarlist)[0] and args['force'] == False:
+		return True
+
+	for f in set(srrlist[2] + rarlist):
+		if re.search(r'\.((part0?0?1\.)?rar|001)$', f, re.IGNORECASE) is not None:
+			unrar = UnRAR(filename=f, binary=args['unrar_bin'])
+			if unrar.unrar() == False:
+				return False
+
+	for f in set(srrlist[2] + rarlist):
+		try:
+			os.unlink(os.path.join(os.getcwd(), f))
+		except:
+			if len(str(sys.exc_info()[1])) > 0:
+				print(sys.exc_info()[1])
 			return False
 
-	if os.path.isdir(os.path.join(os.getcwd(), 'Subs')):
-		for f in os.listdir():
-			if re.search(r'[._-](vob)?sub(title)?s?[._-].*\.(r(ar|\d+)|srt|idx|sub)$', f, re.IGNORECASE) is not None:
-				try:
-					shutil.move(f, os.path.join(os.getcwd(), 'Subs', os.path.basename(f)))
-				except:
-					if len(str(sys.exc_info()[1])) > 0:
-						print(sys.exc_info()[1])
-						return False
+	return None
 
+def inputexist(srrlist):
+	nf = 0
+	for f in srrlist[3]:
+		if not os.path.isfile(os.path.join(os.getcwd(), f.split('/')[-1])):
+			print('Input file: %r not found.' % (f))
+			nf = (nf+1)
+	
+	if nf > 0:
+		return False
+
+def deleteothers(srrlist, srrfile):
 	for f in os.listdir():
 		if f not in srrlist[1] and f != os.path.basename(srrfile) and os.path.isfile(f):
 			try:
@@ -218,11 +182,11 @@ def main():
 			except:
 				if len(str(sys.exc_info()[1])) > 0:
 					print(sys.exc_info()[1])
-					return False
+				return False
 
+def recreatesample(srr, srrlist, args):
 	if srr.extract() == False:
 		return False
-
 	for f in srrlist[0]:
 		if re.search(r'\.srs$', f, re.IGNORECASE) is not None:
 			srs = SRS(filename=f, binary=args['srs_bin'])
@@ -244,7 +208,7 @@ def main():
 				except:
 					if len(str(sys.exc_info()[1])) > 0:
 						print(sys.exc_info()[1])
-						return False
+					return False
 			
 			if srs.recreate(input=srrlist[1][0]) == False:
 				return False
@@ -254,7 +218,106 @@ def main():
 			except:
 				if len(str(sys.exc_info()[1])) > 0:
 					print(sys.exc_info()[1])
-					return False
+				return False
+
+def sfvverify(args, opts=''):
+	cfv = CFV(binary=args['cfv_bin'])
+	if cfv.verify(opts) == False:
+		return False
+
+def srrdb(dirname, srrdir):
+	srrfile = os.path.join(srrdir, dirname + '.srr')
+
+	try:
+		socket.setdefaulttimeout(30)
+		urllib.request.urlretrieve('http://www.srrdb.com/download.php?release=%s' % (dirname), srrfile)
+	except:
+		if len(str(sys.exc_info()[1])) > 0:
+			print(sys.exc_info()[1])
+		return False
+
+	if os.path.getsize(srrfile) == 0 or not os.path.isfile(srrfile):
+		print('%r not found on srrdb.com' % (dirname))
+		try:
+			os.unlink(srrfile)
+		except:
+			if len(str(sys.exc_info()[1])) > 0:
+				print(sys.exc_info()[1])
+		return False
+
+	print('%r.srr downloaded successfully.' % (dirname))
+
+def main(args, input):
+	input = os.path.normpath(os.path.expanduser(input))
+	if not os.path.isdir(input) or input == '.':
+		return False
+	try:
+		os.chdir(input)
+	except:
+		if len(str(sys.exc_info()[1])) > 0:
+			print(sys.exc_info()[1])
+		return False
+
+	if args['sample_only'] == False:
+		if dircheck(input) == False:
+			return True
+		if prepare(input) == False:
+			return False
+
+	if args['srr_dir'] == None:
+		srrdir = os.getcwd()
+	else:
+		srrdir = os.path.normpath(os.path.expanduser(args['srr_dir']))
+	if not os.path.isdir(srrdir):
+		try:
+			os.makedirs(srrdir)
+		except:
+			if len(str(sys.exc_info()[1])) > 0:
+				print(sys.exc_info()[1])
+			return False
+	dirname = os.path.dirname(input + os.sep)
+	srrfile = os.path.join(srrdir, dirname + '.srr')
+
+	if getsrr(srrfile, dirname, srrdir) == False:
+		return False
+	srrfile = os.path.join(os.getcwd(), dirname + '.srr')
+
+	srr = SRR(filename=srrfile, binary=args['srr_bin'])
+	srrlist = srr.list()
+
+	if args['sample_only'] == True:
+		if recreatesample(srr, srrlist, args) == False:
+			return False
+		else:
+			return True
+
+	subslist = getsubslist()
+	if movesubs(subslist) == False:
+		return False
+
+	rarlist = getrarlist(subslist)
+	rar = rarexist(srrlist, rarlist)
+
+	if rar is not None:
+		rarsexistbool = rarsexist(rar, srr, rarlist, srrlist, args)
+		if rarsexistbool == False:
+			return False
+		elif rarsexistbool == True:
+			prepare(input)
+			return True
+	
+	if inputexist(srrlist) == False:
+		return False
+
+	if srr.reconstruct() == False:
+		return False
+
+	if deleteothers(srrlist, srrfile) == False:
+		return False
+
+	recreatesamplebool = recreatesample(srr, srrlist, args)
+	if recreatesamplebool == False:
+		return False
 
 	if srrdir != os.getcwd():
 		try:
@@ -262,15 +325,25 @@ def main():
 		except:
 			if len(str(sys.exc_info()[1])) > 0:
 				print(sys.exc_info()[1])
-				return False
-
-	if args['sample_only'] == False:
-		cfv = CFV(binary=args['cfv_bin'])
-		if cfv.verify() == False:
 			return False
 
+	subslist = getsubslist()
+	if movesubs(subslist) == False:
+		return False
+
+	if sfvverify(args, opts='-r') == False:
+		return False
+
 if __name__ == '__main__':
-	if main() != False:
-		sys.exit(0)
-	else:
+	args = init_argparse()
+	err = 0
+	cwd = os.getcwd()
+	for d in args['input']:
+		print('Processing: %s\n' % (d))
+		if main(args, d) == False:
+			err = (err+1)
+		os.chdir(cwd)
+
+	if err > 0:
+		print('Errors: %s' % (err))
 		sys.exit(1)
