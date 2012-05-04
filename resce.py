@@ -149,7 +149,7 @@ def rarsexist(rar, srr, rarlist, srrlist, args):
 		return True
 
 	for f in set(srrlist[2] + rarlist):
-		if re.search(r'\.((part0?0?1\.)?rar|001)$', f, re.IGNORECASE) is not None:
+		if os.path.isfile(f) and re.search(r'\.((part0?0?1\.)?rar|001)$', f, re.IGNORECASE) is not None:
 			unrar = UnRAR(filename=f, binary=args['unrar_bin'])
 			if unrar.unrar() == False:
 				return False
