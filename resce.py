@@ -203,6 +203,13 @@ def recreatesample(srr, srrlist, args):
 			if sample is not None:
 				print('%r found, sample exists.' % (sample))
 				if args['force'] == False:
+					try:
+						os.unlink(f)
+					except:
+						if len(str(sys.exc_info()[1])) > 0:
+							print(sys.exc_info()[1])
+						return False
+
 					return True
 
 				try:
