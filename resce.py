@@ -190,54 +190,51 @@ def recreatesample(srr, srrlist, args):
 	if srr.extract() == False:
 		return False
 	for f in srrlist[0]:
-		if re.search(r'\.srs$', f, re.IGNORECASE) is not None:
-			srs = SRS(filename=f, binary=args['srs_bin'])
-			srslist = srs.list()
+		if re.search(r'\.srs$', f, re.IGNORECASE) is None:
+			continue
 
-			sample = None
-			if os.path.isfile(os.path.join(os.getcwd(), srslist[0])):
-				sample = srslist[0]
-			elif os.path.isfile(os.path.join(os.getcwd(), 'Sample', srslist[0])):
-				sample = 'Sample' + os.sep + srslist[0]
+		srs = SRS(filename=f, binary=args['srs_bin'])
+		srslist = srs.list()
 
-			if os.path.isfile(os.path.join(os.getcwd(), f.split('/')[-1])):
-				f = f.split('/')[-1]
-			elif os.path.isfile(os.path.join(os.getcwd(), 'Sample', f)):
-				f = 'Sample' + os.sep + f
+		sample = None
+		if os.path.isfile(os.path.join(os.getcwd(), srslist[0])):
+			sample = srslist[0]
+		elif os.path.isfile(os.path.join(os.getcwd(), 'Sample', srslist[0])):
+			sample = 'Sample' + os.sep + srslist[0]
 
-			if sample is not None:
-				print('%r found, sample exists.' % (sample))
-				if args['force'] == False:
-					try:
-						os.unlink(f)
-					except:
-						if len(str(sys.exc_info()[1])) > 0:
-							print(sys.exc_info()[1])
-						return False
-
-					return True
-
+		if sample is not None:
+			print('%r found, sample exists.' % (sample))
+			if args['force'] == False:
 				try:
-					os.unlink(sample)
+					os.unlink(f)
 				except:
 					if len(str(sys.exc_info()[1])) > 0:
 						print(sys.exc_info()[1])
 					return False
 
-			if os.path.isfile(srrlist[1][0]):
-				srsinput = srrlist[1][0]
-			elif os.path.isfile(srrlist[1][0].split('/')[-1]):
-				srsinput = srrlist[1][0].split('/')[-1]
-
-			if srs.recreate(input=srsinput) == False:
-				return False
+				return True
 
 			try:
-				os.unlink(f)
+				os.unlink(sample)
 			except:
 				if len(str(sys.exc_info()[1])) > 0:
 					print(sys.exc_info()[1])
 				return False
+
+		if os.path.isfile(srrlist[1][0]):
+			srsinput = srrlist[1][0]
+		elif os.path.isfile(srrlist[1][0].split('/')[-1]):
+			srsinput = srrlist[1][0].split('/')[-1]
+
+		if srs.recreate(input=srsinput) == False:
+			return False
+
+		try:
+			os.unlink(f)
+		except:
+			if len(str(sys.exc_info()[1])) > 0:
+				print(sys.exc_info()[1])
+			return False
 
 def sfvverify(args, opts=''):
 	cfv = CFV(binary=args['cfv_bin'])
@@ -323,9 +320,9 @@ def main(args, input):
 		if rarsexistbool == False:
 			return False
 		elif rarsexistbool == True:
-			prepare(input)
 			if recreatesample(srr, srrlist, args) == False:
 				return False
+			prepare(input)
 
 			return True
 	
