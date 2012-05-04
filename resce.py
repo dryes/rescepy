@@ -88,7 +88,7 @@ def prepare(input):
 
 def getsrr(srrfile, dirname, srrdir):
 	if not os.path.isfile(srrfile):
-		if not srrdb(dirname, srrdir):
+		if srrdb(dirname, srrdir) == False:
 			return False
 
 	if srrdir != os.getcwd():
