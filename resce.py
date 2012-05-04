@@ -211,8 +211,13 @@ def recreatesample(srr, srrlist, args):
 					if len(str(sys.exc_info()[1])) > 0:
 						print(sys.exc_info()[1])
 					return False
-			
-			if srs.recreate(input=srrlist[1][0]) == False:
+
+			if os.path.isfile(srrlist[1][0]):
+				srsinput = srrlist[1][0]
+			elif os.path.isfile(srrlist[1][0].split('/')[-1]):
+				srsinput = srrlist[1][0].split('/')[-1]
+
+			if srs.recreate(input=srsinput) == False:
 				return False
 
 			try:
@@ -307,6 +312,9 @@ def main(args, input):
 			return False
 		elif rarsexistbool == True:
 			prepare(input)
+			if recreatesample(srr, srrlist, args) == False:
+				return False
+
 			return True
 	
 	if inputexist(srrlist) == False:
