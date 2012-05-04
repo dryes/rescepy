@@ -200,6 +200,11 @@ def recreatesample(srr, srrlist, args):
 			elif os.path.isfile(os.path.join(os.getcwd(), 'Sample', srslist[0])):
 				sample = 'Sample' + os.sep + srslist[0]
 
+			if os.path.isfile(os.path.join(os.getcwd(), f.split('/')[-1])):
+				f = f.split('/')[-1]
+			elif os.path.isfile(os.path.join(os.getcwd(), 'Sample', f)):
+				f = 'Sample' + os.sep + f
+
 			if sample is not None:
 				print('%r found, sample exists.' % (sample))
 				if args['force'] == False:
