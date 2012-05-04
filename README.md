@@ -1,9 +1,9 @@
 rescepy
 =====
 
-rescepy is a Python script for automated ReScene reconstruction.
+rescepy is a cross-platform Python script for automated ReScene reconstruction.
 
-* Cross-platform for the first time.
+* Zero user intervention required - entirely automated.
 * Grabs the latest srrs from srrdb.com.
 * Option to process samples only.
 
@@ -19,12 +19,16 @@ rescepy is a Python script for automated ReScene reconstruction.
 ## usage:
 
 * Simply download, retaining directory structure, and run resce.py (-h for help).
-* Default srr storage directory is inside the release dir. - this can be changed with the --srr-dir option.
+* By default the srr is saved inside the release directory - this can be changed with the '--srr-dir' option.
 
 
 ## notes:
 
-* Use with caution - do not pass in directories that are not intended for processing.
+* If rars exist without passing '-f' (force), the directory structure may be disrupted.
+*   - run Goober's Awescript with: '--no-srr --no-srs' to remedy this.
+* *nix users: it is assumed that you have created scripts in /usr/bin/ to call: mono /path/to/srr.exe
+* Windows users: ensure all dependencies are included in your PATH.
+* Releases determined to be fixes (eg. DiRFiX, SUBFiX, etc.) or non-video are skipped.
 
 [python]: http://www.python.org/
 [rescene]: http://www.srrdb.com/software.php
