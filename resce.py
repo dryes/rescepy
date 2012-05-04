@@ -245,7 +245,8 @@ def srrdb(dirname, srrdir):
 				print(sys.exc_info()[1])
 		return False
 
-	print('%r.srr downloaded successfully.' % (dirname))
+	print('\'%s.srr\' downloaded successfully.' % (dirname))
+	return None
 
 def main(args, input):
 	input = os.path.normpath(os.path.expanduser(input))
