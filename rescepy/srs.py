@@ -40,13 +40,13 @@ class SRS:
 			return False
 
 	def list(self):
-		sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split()
+		sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split(':')
 
 		##sample name.
-		sn = sg[12]
+		sn = sg[3][:-12].strip()
 		##sample size.
-		ss = sg[15]
+		ss = sg[4][:-11].strip()
 		##sample crc.
-		sc = sg[19]
+		sc = sg[5].strip()
 
 		return (sn, ss, sc)
