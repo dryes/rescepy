@@ -24,8 +24,7 @@ rescepy is a cross-platform Python script for automated ReScene reconstruction.
 
 ## notes:
 
-* If rars exist without passing '-f' (force), the directory structure may be disrupted.
-*   - run Goober's Awescript with: '--no-srr --no-srs' to remedy this.
+* If rars exist without passing '-f' (force), the directory structure may be disrupted - run Goober's Awescript with: '--no-srr --no-srs' to remedy this.
 * *nix users: it is assumed that you have created scripts in /usr/bin/ to call: mono /path/to/srr.exe
 * Windows users: ensure all dependencies are included in your PATH.
 * Releases determined to be fixes (eg. DiRFiX, SUBFiX, etc.) or non-video are skipped.
