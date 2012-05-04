@@ -221,13 +221,15 @@ def recreatesample(srr, srrlist, args):
 					print(sys.exc_info()[1])
 				return False
 
+		srsinput = None
 		if os.path.isfile(srrlist[1][0]):
 			srsinput = srrlist[1][0]
 		elif os.path.isfile(srrlist[1][0].split('/')[-1]):
 			srsinput = srrlist[1][0].split('/')[-1]
 
-		if srs.recreate(input=srsinput) == False:
-			return False
+		if srsinput is not None:
+			if srs.recreate(input=srsinput) == False:
+				return False
 
 		try:
 			os.unlink(f)
