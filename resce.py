@@ -141,7 +141,7 @@ def rarsexist(rar, srr, rarlist, srrlist, args):
 	if srr.extract() == False:
 		return False
 
-	if sfvverify(args) != False and args['force'] == False:
+	if args['force'] == False and sfvverify(args) != False:
 		return True
 
 	rarlist = getrarlist(getsubslist())
