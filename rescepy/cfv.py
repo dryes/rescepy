@@ -29,7 +29,7 @@ class CFV:
 			self.binary = binary
 
 	def verify(self, opts=''):
-		sp = subprocess.Popen('%s -vsn %s -t sfv' % (self.binary, opts), shell=True, stdin=subprocess.PIPE)
+		sp = subprocess.Popen('%s -vs %s -t sfv' % (self.binary, opts), shell=True, stdin=subprocess.PIPE)
 		sp.communicate()
 		if sp.returncode == 0:
 			return True
