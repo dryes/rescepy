@@ -18,7 +18,7 @@
 
 import os,re,subprocess
 
-class UNRAR:
+class UnRAR:
 	def __init__(self, filename=None, password=None, binary=None):
 		self.filename = filename
 		self.password = password
