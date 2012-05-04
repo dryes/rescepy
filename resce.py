@@ -148,21 +148,23 @@ def rarsexist(rar, srr, rarlist, srrlist, args):
 	if sorted(srrlist)[0] == sorted(rarlist)[0] and args['force'] == False:
 		return True
 
-	for f in set(srrlist[2] + rarlist):
-		if os.path.isfile(f):
-			if re.search(r'\.((part0?0?1\.)?rar|001)$', f, re.IGNORECASE) is not None:
-				unrar = UnRAR(filename=f, binary=args['unrar_bin'])
-				if unrar.unrar() == False:
-					return False
+        for f in set(srrlist[2] + rarlist):
+                if os.path.isfile(f):
+                        if re.search(r'\.((part0?0?1\.)?rar|001)$', f, re.IGNORECASE) is not None:
+                                unrar = UnRAR(filename=f, binary=args['unrar_bin'])
+                                if unrar.unrar() == False:
+                                        return False
 
-			try:
-				os.unlink(os.path.join(os.getcwd(), f))
-			except:
-				if len(str(sys.exc_info()[1])) > 0:
-					print(sys.exc_info()[1])
-				return False
+        for f in set(srrlist[2] + rarlist):
+                if os.path.isfile(f):
+                        try:
+                                os.unlink(os.path.join(os.getcwd(), f))
+                        except:
+                                if len(str(sys.exc_info()[1])) > 0:
+                                        print(sys.exc_info()[1])
+                                return False
 
-	return None
+        return None
 
 def inputexist(srrlist):
 	nf = 0
