@@ -47,7 +47,7 @@ def dircheck(input):
 	if re.search(r'[._-](dir|id3|nfo|sample|(vob)?sub(title)?s?|track).?(fix|pack)[._-]', input, re.IGNORECASE) is not None:
 		print('%r detected as fix, skipping.' % (input))
 		return False
-	elif re.search(r'[._-](divx|xvid|[hx]264|wmv(hd)?)[._-]', input, re.IGNORECASE) is None:
+	elif re.search(r'[._-]((dv)?divx|xvid(vd)?|[hx]264|wmv(hd)?|dvdr)[._-]', input, re.IGNORECASE) is None:
 		print('%r not video release, skipping.' % (input))
 		return False
 
