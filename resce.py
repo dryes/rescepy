@@ -248,7 +248,7 @@ def srrdb(dirname, srrdir):
 
 	try:
 		socket.setdefaulttimeout(30)
-		urllib.request.urlretrieve('http://www.srrdb.com/download.php?release=%s' % (dirname), srrfile)
+		urllib.request.urlretrieve('http://www.srrdb.com/download/srr/%s' % (dirname), srrfile)
 	except:
 		if len(str(sys.exc_info()[1])) > 0:
 			print(sys.exc_info()[1])
