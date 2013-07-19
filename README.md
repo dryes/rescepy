@@ -10,8 +10,7 @@ rescepy is a cross-platform Python script for automated ReScene reconstruction.
 ## dependencies:
 
 * [Python3][python]
-* [ReScene][rescene]
-* [ReSample][resample]
+* [pyReScene][pyrescene]
 * [UnRAR][unrar]
 * [cfv][cfv]
 
@@ -24,13 +23,11 @@ rescepy is a cross-platform Python script for automated ReScene reconstruction.
 
 ## notes:
 
-* If rars exist without passing '-f' (force), the directory structure may be disrupted - run Goober's Awescript with: '--no-srr --no-srs' to remedy this.
-* *nix users: it is assumed that you have created scripts in /usr/bin/ to call: mono /path/to/srr.exe
+* It is recommended you run Goober's Awescript with: '--no-srr --no-srs' before processing with rescepy to avoid missing file errors.
 * Windows users: ensure all dependencies are included in your PATH.
 * Releases determined to be fixes (eg. DiRFiX, SUBFiX, etc.) or non-video are skipped.
 
 [python]: http://www.python.org/
-[rescene]: http://www.srrdb.com/software.php
-[resample]: http://www.srrdb.com/software.php
+[pyrescene]: https://bitbucket.org/Gfy/pyrescene
 [unrar]: http://www.rarlab.com/
 [cfv]: http://cfv.sourceforge.net/
