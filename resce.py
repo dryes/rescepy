@@ -193,6 +193,7 @@ def inputexist(srrlist):
 def deleteothers(keeplist, srrfile):
     keeplist = list(keeplist)
     keeplist.append('Sample')
+    keeplist.append('Subs')
 
     for o in os.listdir():
         if o not in keeplist and o != os.path.basename(srrfile):
