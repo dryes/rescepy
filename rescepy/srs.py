@@ -39,7 +39,7 @@ class SRS:
         else:
             return False
 
-    def list(self):
+    def listfiles(self):
         #TODO: this is filth; use proper means of determining content
         sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split(':')
 

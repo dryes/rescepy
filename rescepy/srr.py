@@ -18,7 +18,7 @@
 
 ##TODO: proper stored files parsing
 
-import os,subprocess
+import os,re,subprocess
 
 class SRR:
     def __init__(self, filename, binary=None):
@@ -47,7 +47,7 @@ class SRR:
         else:
             return False
 
-    def list(self):
+    def listfiles(self):
         #TODO: this is filth; use proper means of determining content
         sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split(':')
 
@@ -57,11 +57,13 @@ class SRR:
         sft[-1] = sft[-1][:-1]
         sf = []
         for f in sft:
-            sf.append(f.split(' ')[-1])
-        if sf[-1] == 'file':
-            del sf[-1]
-        if sf[-1] == '':
-            del sf[-1]
+            fm = re.match(r'[\d\,]+ (.*)', f.strip())
+            if fm is not None and fm.group(1) is not None:
+                sf.append(fm.group(1).strip())
+                if '/' in fm.group(1):
+                    sf.append(fm.group(1).split('/')[0].strip())
+        if sf is not None:
+            sf = list(set(sf))
 
         ##rar files.
         rf = None
@@ -75,7 +77,10 @@ class SRR:
             rft[-1] = rft[-1][:-1]
             rf = []
             for f in rft:
-                rf.append(f.split(' ')[0])
+                fm = re.match(r'(.*) [A-Z0-9]{8} \d+', f)
+                if fm is not None and fm.group(1) is not None:
+                    rf.append(fm.group(1).strip())
+        
 
         ##rar files - no dirs.
         rfnd = None
@@ -83,6 +88,10 @@ class SRR:
             rfnd = []
             for f in rf:
                 rfnd.append(f.split('/')[-1])
+                rfnd.append(f.split('/')[0])
+        if rfnd is not None:
+            rfnd = list(set(rfnd))
+
 
         ##archived files.
         af = None
@@ -95,6 +104,8 @@ class SRR:
             del aft[0]
             af = []
             for f in aft:
-                af.append(f.replace('\n', '').replace('\\', '/').split(' ')[0])
+                fm = re.match(r'(.*) [A-Z0-9]{8} \d+', f)
+                if fm is not None and fm.group(1) is not None:
+                    af.append(fm.group(1).replace('\\', '/').strip())
 
         return (sf, rf, rfnd, af)
