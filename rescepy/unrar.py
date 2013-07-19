@@ -19,23 +19,23 @@
 import os,re,subprocess
 
 class UnRAR:
-	def __init__(self, filename=None, password=None, binary=None):
-		self.filename = filename
-		self.password = password
-		if binary == None:
-			if os.name == 'posix':
-				self.binary = ('/usr/bin/unrar')
-			elif os.name == 'nt':
-				self.binary = ('unrar')
-		else:
-			self.binary = binary
+    def __init__(self, filename=None, password=None, binary=None):
+        self.filename = filename
+        self.password = password
+        if binary == None:
+            if os.name == 'posix':
+                self.binary = ('/usr/bin/unrar')
+            elif os.name == 'nt':
+                self.binary = ('unrar')
+        else:
+            self.binary = binary
 
-	def unrar(self, opts='-ierr -o+ -y'):
-		if self.password is not None:
-			opts += ' -p%s' % re.escape(self.password)
-		sp = subprocess.Popen('%s e %r %s --' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
-		sp.communicate()
-		if sp.returncode == 0:
-			return True
-		else:
-			return False
+    def unrar(self, opts='-ierr -o+ -y'):
+        if self.password is not None:
+            opts += ' -p%s' % re.escape(self.password)
+        sp = subprocess.Popen('%s x %r %s --' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp.communicate()
+        if sp.returncode == 0:
+            return True
+        else:
+            return False

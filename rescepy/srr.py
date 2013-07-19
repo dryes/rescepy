@@ -16,60 +16,85 @@
 # You should have received a copy of the GNU General Public License
 # along with rescepy.  If not, see <http://www.gnu.org/licenses/>.
 
-##TODO: verify srr
+##TODO: proper stored files parsing
 
 import os,subprocess
 
 class SRR:
-	def __init__(self, filename, binary=None):
-		self.filename = filename
-		if binary == None:
-			if os.name == 'posix':
-				self.binary = '/usr/bin/srr'
-			elif os.name == 'nt':
-				self.binary = 'srr'
-		else:
-			self.binary = binary
+    def __init__(self, filename, binary=None):
+        self.filename = filename
+        if binary == None:
+            if os.name == 'posix':
+                self.binary = '/usr/bin/srr'
+            elif os.name == 'nt':
+                self.binary = 'srr'
+        else:
+            self.binary = binary
 
-	def extract(self, opts=''):
-		sp = subprocess.Popen('%s %r %s -x -p -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
-		sp.communicate()
-		if sp.returncode == 0:
-			return True
-		else:
-			return False
+    def extract(self, opts=''):
+        sp = subprocess.Popen('%s %r %s -x -p -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp.communicate()
+        if sp.returncode == 0:
+            return True
+        else:
+            return False
 
-	def reconstruct(self, opts=''):
-		sp = subprocess.Popen('%s %r %s -p -r -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
-		sp.communicate()
-		if sp.returncode == 0:
-			return True
-		else:
-			return False
+    def reconstruct(self, opts=''):
+        sp = subprocess.Popen('%s %r %s -c -p -r -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp.communicate()
+        if sp.returncode == 0:
+            return True
+        else:
+            return False
 
-	def list(self):
-		sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split(':')
+    def list(self):
+        #TODO: this is filth; use proper means of determining content
+        sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split(':')
 
-		##stored files.
-		sf = (sg[2].split('\n\t'))
-		del sf[0]
-		sf[-1] = sf[-1][:-11]
+        ##stored files.
+        sft = (sg[2].split('\n'))
+        del sft[0]
+        sft[-1] = sft[-1][:-1]
+        sf = []
+        for f in sft:
+            sf.append(f.split(' ')[-1])
+        if sf[-1] == 'file':
+            del sf[-1]
+        if sf[-1] == '':
+            del sf[-1]
 
-		##rar files.
-		rf = (sg[3].split('\n\t'))
-		del rf[0]
-		rf[-1] = rf[-1][:-16]
+        ##rar files.
+        rf = None
+        try:
+            sg[3]
+        except IndexError:
+            sg.append(None)
+        if sg[3] is not None:
+            rft = (sg[3].split('\n\t'))
+            del rft[0]
+            rft[-1] = rft[-1][:-1]
+            rf = []
+            for f in rft:
+                rf.append(f.split(' ')[0])
 
-		##rar files - no dirs.
-		rfnd = []
-		for f in rf:
-			rfnd.append(f.split('/')[-1])
+        ##rar files - no dirs.
+        rfnd = None
+        if rf is not None:
+            rfnd = []
+            for f in rf:
+                rfnd.append(f.split('/')[-1])
 
-		##archived files.
-		aft = (sg[4].split('\t'))
-		del aft[0]
-		af = []
-		for f in aft:
-			af.append(f.replace('\n', ''))
+        ##archived files.
+        af = None
+        try:
+            sg[4]
+        except IndexError:
+            sg.append(None)
+        if sg[4] is not None:
+            aft = (sg[4].split('\t'))
+            del aft[0]
+            af = []
+            for f in aft:
+                af.append(f.replace('\n', '').replace('\\', '/').split(' ')[0])
 
-		return (sf, rf, rfnd, af)
+        return (sf, rf, rfnd, af)

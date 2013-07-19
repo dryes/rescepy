@@ -19,19 +19,19 @@
 import os,subprocess
 
 class CFV:
-	def __init__(self, binary=None):
-		if binary == None:
-			if os.name == 'posix':
-				self.binary = '/usr/bin/cfv'
-			elif os.name == 'nt':
-				self.binary = 'cfv'
-		else:
-			self.binary = binary
+    def __init__(self, binary=None):
+        if binary == None:
+            if os.name == 'posix':
+                self.binary = '/usr/bin/cfv'
+            elif os.name == 'nt':
+                self.binary = 'cfv'
+        else:
+            self.binary = binary
 
-	def verify(self, opts=''):
-		sp = subprocess.Popen('%s -vsn %s -t sfv' % (self.binary, opts), shell=True, stdin=subprocess.PIPE)
-		sp.communicate()
-		if sp.returncode == 0:
-			return True
-		else:
-			return False
+    def verify(self, opts=''):
+        sp = subprocess.Popen('%s -vsnr %s -t sfv' % (self.binary, opts), shell=True, stdin=subprocess.PIPE)
+        sp.communicate()
+        if sp.returncode == 0:
+            return True
+        else:
+            return False
