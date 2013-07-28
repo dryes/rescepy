@@ -193,7 +193,6 @@ def inputexist(srrlist):
 def deleteothers(keeplist, srrfile):
     keeplist = list(keeplist)
     keeplist.append('Sample')
-    keeplist.append('Subs')
 
     for o in os.listdir():
         if o not in keeplist and o != os.path.basename(srrfile):
@@ -279,11 +278,14 @@ def recreatesample(srr, srrlist, args):
 def recreatetags(srrlist, srrfile, args):
     listdir = os.listdir()
     keeplist = []
+    srsfiles = []
 
     for f in sorted(srrlist[0]):
         if re.search(r'\.srs$', f, re.IGNORECASE) is None:
             keeplist.append(f)
             continue
+
+        srsfiles.append(f)
 
         srs = SRS(filename=f, binary=args['srs_bin'])
         srslist = srs.listfiles()
@@ -321,7 +323,7 @@ def recreatetags(srrlist, srrfile, args):
         if not os.path.isfile(inputfile):
             return False
 
-    if len(keeplist) > 0 and deleteothers(keeplist, srrfile) == False:
+    if len(keeplist) > 0 and len(srsfiles) > 0 and deleteothers(keeplist, srrfile) == False:
         return False
 
 def sfvverify(args, opts=''):
