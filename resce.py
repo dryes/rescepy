@@ -372,7 +372,7 @@ def srrdb(dirname, srrdir):
     return None
 
 def isvideo(dirname):
-    if re.search(r'[._-]((dv)?divx|xvid(vd)?|[hx]264|wmv(hd)?|dvd[r59])[._-]', dirname, re.IGNORECASE) is not None:
+    if re.search(r'[._-]((dv)?divx|xvid(vd)?|[hx]26[45]|wmv(hd)?|dvd[r59])[._-]', dirname, re.IGNORECASE) is not None:
         return True
     else:
         return False
