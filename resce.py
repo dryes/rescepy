@@ -636,7 +636,7 @@ if __name__ == '__main__':
         print '\nProcessing: %s\n' % (f.split(os.sep)[-1])
         dirname = srrdbidentify(crc(f))
         if dirname is False:
-            err = (err+1)
+            erc = (erc+1)
             continue
 
         dirname = os.path.abspath(os.path.join(os.path.dirname(f), dirname))
