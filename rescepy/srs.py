@@ -1,53 +1,43 @@
-# Author: Joseph Wiseman <joswiseman@gmail>
-# URL: https://github.com/dryes/rescepy/
+# Author: Joseph Wiseman <joswiseman@outlook>
+# URL: https://github.com/d2yes/rescepy/
 #
 # This file is part of rescepy.
 #
-# rescepy is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# rescepy is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with rescepy.  If not, see <http://www.gnu.org/licenses/>.
 
-##TODO: proper stored files parsing
+import os,resample,subprocess
 
-import os,subprocess
-
-class SRS:
+class SRS(object):
     def __init__(self, filename, binary=None):
         self.filename = filename
         if binary == None:
             if os.name == 'posix':
                 self.binary = '/usr/bin/srs'
             elif os.name == 'nt':
-                self.binary = 'srs'
+                self.binary = 'srs.exe'
         else:
             self.binary = binary
 
-    def recreate(self, input, output='Sample' + os.sep):
-        sp = subprocess.Popen('%s %r %r -o %r -y' % (self.binary, self.filename, input, output), shell=True, stdin=subprocess.PIPE)
+    def recreate(self, infile, outdir='Sample' + os.sep):
+        if not os.path.isdir(outdir):
+            try:
+                os.makedirs(outdir)
+            except:
+                if len(str(sys.exc_info()[1])) > 0:
+                    print sys.exc_info()[1]
+                return False
+
+        sp = subprocess.Popen('%s \'%s\' \'%s\' -o \'%s\' -y' % (self.binary, self.filename, infile, outdir), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
-        if sp.returncode == 0:
-            return True
-        else:
+
+        return True if sp.returncode == 0 else False
+
+    def info(self):
+        rgft = resample.get_file_type(self.filename)
+        if rgft == 'Unknown':
+            print '\'%s\' is unknown file type.' % (self.filename)
             return False
 
-    def listfiles(self):
-        #TODO: this is filth; use proper means of determining content
-        sg = subprocess.getoutput('%s %r -l' % (self.binary, self.filename)).split(':')
+        rscf = resample.sample_class_factory(rgft)
+        data, tracks = rscf.load_srs(self.filename)
 
-        ##sample name.
-        sn = sg[3][:-12].strip()
-        ##sample size.
-        ss = sg[4][:-11].strip()
-        ##sample crc.
-        sc = sg[5].strip().split('\n')[0]
-
-        return (sn, ss, sc)
+        return (data.name, data.size, '%X' % (data.crc32 & 0xFFFFFFFF))

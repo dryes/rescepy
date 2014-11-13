@@ -1,24 +1,12 @@
-# Author: Joseph Wiseman <joswiseman@gmail>
-# URL: https://github.com/dryes/rescepy/
+# Author: Joseph Wiseman <joswiseman@outlook>
+# URL: https://github.com/d2yes/rescepy/
 #
 # This file is part of rescepy.
 #
-# rescepy is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# rescepy is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with rescepy.  If not, see <http://www.gnu.org/licenses/>.
 
 import os,re,subprocess
 
-class UnRAR:
+class UnRAR(object):
     def __init__(self, filename=None, password=None, binary=None):
         self.filename = filename
         self.password = password
@@ -30,12 +18,10 @@ class UnRAR:
         else:
             self.binary = binary
 
-    def unrar(self, opts='-ierr -o+ -y'):
+    def extract(self, opts='-ierr -o+ -y'):
         if self.password is not None:
             opts += ' -p%s' % re.escape(self.password)
-        sp = subprocess.Popen('%s x %r %s --' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp = subprocess.Popen('%s x \'%s\' %s --' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
-        if sp.returncode == 0:
-            return True
-        else:
-            return False
+
+        return True if sp.returncode == 0 else False

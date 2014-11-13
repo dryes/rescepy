@@ -1,15 +1,16 @@
 rescepy
 =====
 
-rescepy is a cross-platform Python script for automated ReScene reconstruction.
+a cross-platform python2 script for automated srr (rescene) verification and reconstruction.
 
-* Zero user intervention required - entirely automated.
-* Grabs the latest srrs from srrdb.com.
-* Option to process samples only.
+* fetches srrs from: http://www.srrdb.com
+* verifies sfv files and reconstructs rars and samples if required.
+* ability to identify and process extracted files (video only).
+
 
 ## dependencies:
 
-* [Python3][python]
+* [Python2][python]
 * [pyReScene][pyrescene]
 * [UnRAR][unrar]
 * [cfv][cfv]
@@ -17,15 +18,18 @@ rescepy is a cross-platform Python script for automated ReScene reconstruction.
 
 ## usage:
 
-* Simply download, retaining directory structure, and run resce.py (-h for help).
-* By default the srr is saved inside the release directory - this can be changed with the '--srr-dir' option.
+* python2 resce.py [--opts] input1 [input2] ...
 
 
 ## notes:
 
-* It is recommended you run Goober's Awescript with: '--no-srr --no-srs' before processing with rescepy to avoid missing file errors.
-* Windows users: ensure all dependencies are included in your PATH.
-* Releases determined to be fixes (eg. DiRFiX, SUBFiX, etc.) are skipped.
+* for reconstruction of compressed rars it is required that you have run preprardir.py included with pyrescene -- also see --rar-dir option.
+* running Goober's awescript with: '--no-srr --no-srs' is recommended before processing with rescepy.
+* releases determined to be fixes (eg. DiRFiX, SUBFiX, etc.) are skipped to avoid problems.
+* pyrescene must be installed (with setup.py) to allow for the importing of its modules.
+* windows users: ensure all dependencies are included in your PATH.
+
+* had to fork this due to losing access to my original github and email accounts over a year ago.
 
 [python]: http://www.python.org/
 [pyrescene]: https://bitbucket.org/Gfy/pyrescene
