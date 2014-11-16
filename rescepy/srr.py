@@ -50,33 +50,33 @@ class SRR(object):
     def filelist(self):
         srrinfo = rescene.info(self.filename)
 
-        srrfiles = []
+        srrlist = []
         if len(srrinfo['stored_files']) > 0:
-            srrfiles.append(list(srrinfo['stored_files']))
+            srrlist.append(list(srrinfo['stored_files']))
         else:
-            srrfiles.append(None)
+            srrlist.append(None)
 
         if len(srrinfo['rar_files']) > 0:
-            srrfiles.append([])
+            srrlist.append([])
             for k, v in (srrinfo['rar_files']).items():
-                srrfiles[1].append(v.file_name)
+                srrlist[1].append(v.file_name)
         else:
-            srrfiles.append(None)
+            srrlist.append(None)
 
-        if srrfiles[1] is not None:
-            srrfiles.append([])
-            for f in srrfiles[1]:
-                srrfiles[2].append(f.split('/')[-1])
+        if srrlist[1] is not None:
+            srrlist.append([])
+            for f in srrlist[1]:
+                srrlist[2].append(f.split('/')[-1])
         else:
-            srrfiles.append(None)
-        if srrfiles[2] is not None:
-            srrfiles[2] = list(set(srrfiles[2]))
+            srrlist.append(None)
+        if srrlist[2] is not None:
+            srrlist[2] = list(set(srrlist[2]))
         else:
-            srrfiles.append(None)
+            srrlist.append(None)
 
         if len(srrinfo['archived_files']) > 0:
-            srrfiles.append(list(srrinfo['archived_files']))
+            srrlist.append(list(srrinfo['archived_files']))
         else:
-            srrfiles.append(None)
+            srrlist.append(None)
 
-        return srrfiles
+        return srrlist

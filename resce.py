@@ -90,26 +90,26 @@ def getsrr(srrfile, dirname, srrdir, download):
 
     return True
 
-def getsubslist(srrfiles):
-    subslist = []
+def getsubsfiles():
+    subsfiles = []
     for r, s, f in os.walk(os.getcwd()):
         for subs in f:
             if re.search(r'([._-](vob)?sub(?!bed|marine|par)(title)?s?[._-]?.*\.(r(ar|\d+)|sfv|srt|idx|sub|srr)|\.(srt|idx|sub))$', subs, re.IGNORECASE) is not None:
-                subslist.append(subs)
+                subsfiles.append(subs)
 
-    return sorted(subslist)
+    return sorted(subsfiles)
 
-def getrarlist(subslist):
-    rarlist = []
+def getrarfiles(subsfiles):
+    rarfiles = []
     for r, s, f in os.walk(os.getcwd()):
         for rar in f:
-            if rar not in subslist and re.search(r'\.(rar|[a-z]\d{2}|\d{3})$', rar, re.IGNORECASE) is not None:
-                rarlist.append(rar)
+            if rar not in subsfiles and re.search(r'\.(rar|[a-z]\d{2}|\d{3})$', rar, re.IGNORECASE) is not None:
+                rarfiles.append(rar)
 
-    return sorted(rarlist)
+    return sorted(rarfiles)
 
-def movesubs(subslist, storedfiles):
-    if len(subslist) == 0:
+def movesubs(subsfiles, storedfiles):
+    if len(subsfiles) == 0:
         return True
 
     subsdir = None
@@ -142,7 +142,7 @@ def movesubs(subslist, storedfiles):
                 print sys.exc_info()[1]
             return False
 
-    for f in set(subslist):
+    for f in set(subsfiles):
         try:
             shutil.copy(os.path.join(os.getcwd(), f), subsdir)
             os.unlink(f)
@@ -154,28 +154,29 @@ def movesubs(subslist, storedfiles):
 
     return subsdir
 
-def rarexist(srrfiles, rarlist):
+def rarexist(srrlist, rarfiles):
     rar = None
-    if os.path.isfile(os.path.join(os.getcwd(), srrfiles[2][0])):
-        rar = srrfiles[2][0]
-    elif len(rarlist) > 0:
-        rar = rarlist[0]
+    if os.path.isfile(os.path.join(os.getcwd(), srrlist[2][0])):
+        rar = srrlist[2][0]
+    elif len(rarfiles) > 0:
+        rar = rarfiles[0]
 
     return rar
 
-def rarsexist(rarlist, rarfiles, isvideobool, inputdir, args):
+def rarsexist(rarlist, subsfiles, isvideobool, inputdir, args):
     if args['force'] == False and sfvverify(args, opts='-r') != False:
         return True
 
+    rarfiles = getrarfiles(subsfiles)
     ##do not proceed if only extra rars (eg subs) are missing.
-    if sorted(rarfiles) == sorted(rarlist) and args['force'] == False:
+    if sorted(rarlist) == sorted(rarfiles) and args['force'] == False:
         return True
 
     if isvideobool == True:
         if prepare(inputdir) == False:
             return False
 
-    for f in set(rarfiles + rarlist):
+    for f in set(rarlist + rarfiles):
         if not os.path.isfile(f):
             continue
 
@@ -187,7 +188,7 @@ def rarsexist(rarlist, rarfiles, isvideobool, inputdir, args):
             if unrar.extract() == False:
                return False
 
-    for f in set(rarfiles + rarlist):
+    for f in set(rarlist + rarfiles):
         if os.path.isfile(f):
             try:
                 os.unlink(os.path.join(os.getcwd(), f))
@@ -227,8 +228,8 @@ def crc(infile):
 
     return '%X' % (p & 0xFFFFFFFF)
 
-def recreatesample(srr, srrfiles, args):
-    for f in srrfiles[0]:
+def recreatesample(srr, srrlist, args):
+    for f in srrlist[0]:
         if re.search(r'\.srs$', f, re.IGNORECASE) is None:
             continue
 
@@ -301,10 +302,10 @@ def recreatesample(srr, srrfiles, args):
                 return False
 
         srsinput = None
-        if os.path.isfile(srrfiles[1][0]):
-            srsinput = srrfiles[1][0]
-        elif os.path.isfile(srrfiles[1][0].split('/')[-1]):
-            srsinput = srrfiles[1][0].split('/')[-1]
+        if os.path.isfile(srrlist[1][0]):
+            srsinput = srrlist[1][0]
+        elif os.path.isfile(srrlist[1][0].split('/')[-1]):
+            srsinput = srrlist[1][0].split('/')[-1]
 
         if srsinput is not None:
             if srs.recreate(infile=srsinput, outdir=sampledir + os.sep) == False:
@@ -319,12 +320,12 @@ def recreatesample(srr, srrfiles, args):
 
     return None
 
-def recreatetags(srrfiles, srrfile, args):
+def recreatetags(srrlist, srrfile, args):
     listdir = os.listdir(os.getcwd())
     keeplist = []
     srsfiles = []
 
-    for srsfile in sorted(srrfiles[0]):
+    for srsfile in sorted(srrlist[0]):
         if re.search(r'\.srs$', srsfile, re.IGNORECASE) is None:
             keeplist.append(srsfile)
             continue
@@ -469,10 +470,10 @@ def srrdbidentify(crc):
 def recreatesubs(subsdir, srrfile, args):
     srrfile = os.path.join(subsdir, srrfile)
     subssrr = SRR(filename=srrfile, binary=args['srr_bin'], rardir=args['rar_dir'])
-    srrfiles = subssrr.filelist()
+    srrlist = subssrr.filelist()
 
     ##add sfv/crc verification
-    if os.path.isfile(os.path.join(subsdir, srrfiles[1][0])):
+    if os.path.isfile(os.path.join(subsdir, srrlist[1][0])):
         try:
             os.unlink(srrfile)
         except:
@@ -481,7 +482,7 @@ def recreatesubs(subsdir, srrfile, args):
         return True
 
     innersrrfile = None
-    for f in srrfiles[0]:
+    for f in srrlist[0]:
         if re.search(r'\.srr$', f, re.IGNORECASE) is not None:
             subssrr.extract(opts='-o %s' % (subsdir))
             innersrrfile = os.path.join(subsdir, f)
@@ -497,8 +498,8 @@ def recreatesubs(subsdir, srrfile, args):
     if success == None and subssrr.verify() == True and subssrr.reconstruct(opts='-o %s' % (subsdir)) == False:
         success = False
 
-    srrfiles[0].append(srrfile)
-    for f in srrfiles[0]:
+    srrlist[0].append(srrfile)
+    for f in srrlist[0]:
         try:
             os.unlink(os.path.join(subsdir, f))
         except:
@@ -550,14 +551,14 @@ def main(inputdir, args):
             return True
 
     srr = SRR(filename=srrfile, binary=args['srr_bin'], rardir=args['rar_dir'])
-    srrfiles = srr.filelist()
+    srrlist = srr.filelist()
 
-    if srrfiles[1] is None:
+    if srrlist[1] is None:
         #assume audio
         if args['force'] == False:
             if srr.extract() == True and sfvverify(args, opts='-r') == True and deletesrs() == True:
                 return True
-        if prepare(inputdir) == False or srr.extract() == False or recreatetags(srrfiles, srrfile, args) == False or sfvverify(args, opts='-r') == False:
+        if prepare(inputdir) == False or srr.extract() == False or recreatetags(srrlist, srrfile, args) == False or sfvverify(args, opts='-r') == False:
                 deletesrs()
                 return False
         return True
@@ -566,31 +567,29 @@ def main(inputdir, args):
         return False
 
     if isvideobool == True and args['sample_only'] == True:
-        if recreatesample(srr, srrfiles, args) == False or deleteothers(set(srrfiles[0] + srrfiles[1] + srrfiles[2]), srrfile) == False:
+        if recreatesample(srr, srrlist, args) == False or deleteothers(set(srrlist[0] + srrlist[1] + srrlist[2]), srrfile) == False:
             return False
         else:
             return True
 
-    subslist = getsubslist(srrfiles[0])
-    subsdir = movesubs(subslist, srrfiles[0])
+    subsfiles = getsubsfiles()
+    subsdir = movesubs(subsfiles, srrlist[0])
     if subsdir == False:
         return False
 
-    for f in subslist:
+    for f in subsfiles:
         if re.search(r'\.srr$', f, re.IGNORECASE) is not None:
             if recreatesubs(subsdir, f, args) == False:
                 print 'Error recreating subtitle rars in: %s' % (subsdir.split(os.sep)[-1])
 
-    rarlist = getrarlist(subslist)
-    rar = rarexist(srrfiles, rarlist)
-
+    rar = rarexist(srrlist, getrarfiles(subsfiles))
     if rar is not None:
         print '\'%s\' found, rars exist.' % (rar)
-        rarsexistbool = rarsexist(rarlist, srrfiles[2], isvideobool, inputdir, args)
+        rarsexistbool = rarsexist(srrlist[2], subsfiles, isvideobool, inputdir, args)
         if rarsexistbool == False:
             return False
         elif rarsexistbool == True:
-            if recreatesample(srr, srrfiles, args) == False or deleteothers(set(srrfiles[0] + srrfiles[1] + srrfiles[2]), srrfile) == False:
+            if recreatesample(srr, srrlist, args) == False or deleteothers(set(srrlist[0] + srrlist[1] + srrlist[2]), srrfile) == False:
                 return False
 
             return True
@@ -602,14 +601,14 @@ def main(inputdir, args):
         return False
 
     if isvideobool == True:
-        if recreatesample(srr, srrfiles, args) == False:
-            deleteothers(set(srrfiles[0] + srrfiles[1] + srrfiles[2]), srrfile)
+        if recreatesample(srr, srrlist, args) == False:
+            deleteothers(set(srrlist[0] + srrlist[1] + srrlist[2]), srrfile)
             return False
 
-    if movesubs(getsubslist(srrfiles[0]), srrfiles[0]) == False:
+    if movesubs(getsubsfiles(srrlist[0]), srrlist[0]) == False:
         return False
 
-    if deleteothers(set(srrfiles[0] + srrfiles[1] + srrfiles[2]), srrfile) == False:
+    if deleteothers(set(srrlist[0] + srrlist[1] + srrlist[2]), srrfile) == False:
         return False
 
     if srrdir != os.getcwd():
