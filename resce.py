@@ -6,7 +6,7 @@
 # This file is part of rescepy.
 #
 
-import argparse,json,os,re,shutil,socket,sys,time,urllib,zlib
+import argparse,json,os,re,shutil,socket,sys,urllib,zlib
 
 from rescepy.cfv import CFV
 from rescepy.srr import SRR
