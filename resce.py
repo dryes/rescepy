@@ -605,7 +605,7 @@ def main(inputdir, args):
             deleteothers(set(srrlist[0] + srrlist[1] + srrlist[2]), srrfile)
             return False
 
-    if movesubs(getsubsfiles(srrlist[0]), srrlist[0]) == False:
+    if movesubs(getsubsfiles(), srrlist[0]) == False:
         return False
 
     if deleteothers(set(srrlist[0] + srrlist[1] + srrlist[2]), srrfile) == False:
