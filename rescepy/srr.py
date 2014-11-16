@@ -67,7 +67,6 @@ class SRR(object):
             srrfiles.append([])
             for f in srrfiles[1]:
                 srrfiles[2].append(f.split('/')[-1])
-                srrfiles[2].append(f.split('/')[0])
         else:
             srrfiles.append(None)
         if srrfiles[2] is not None:
