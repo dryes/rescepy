@@ -391,6 +391,9 @@ def recreatetags(srrlist, srrfile, args):
                     print sys.exc_info()[1]
                 return False
 
+    if sfvverify(args, opts='-r') == False:
+        return False
+
     if len(keeplist) > 0 and len(srsfiles) > 0 and deleteothers(keeplist, srrfile) == False:
         return False
 
@@ -558,7 +561,7 @@ def main(inputdir, args):
         if args['force'] == False:
             if srr.extract() == True and sfvverify(args, opts='-r') == True and deletesrs() == True:
                 return True
-        if prepare(inputdir) == False or srr.extract() == False or recreatetags(srrlist, srrfile, args) == False or sfvverify(args, opts='-r') == False:
+        if prepare(inputdir) == False or srr.extract() == False or recreatetags(srrlist, srrfile, args) == False:
                 deletesrs()
                 return False
         return True
