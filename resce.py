@@ -226,7 +226,8 @@ def crc(infile):
     for l in open(infile, 'rb'):
         p = zlib.crc32(l, p)
 
-    return '%X' % (p & 0xFFFFFFFF)
+    p = '%X' % (p & 0xFFFFFFFF)
+    return p.rjust(8, '0')
 
 def recreatesample(srr, srrlist, args):
     for f in srrlist[0]:
