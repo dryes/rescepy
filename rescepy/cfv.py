@@ -12,7 +12,7 @@ class CFV(object):
             if os.name == 'posix':
                 self.binary = '/usr/bin/cfv'
             elif os.name == 'nt':
-                self.binary = 'cfv.exe'
+                self.binary = 'cfv'
         else:
             self.binary = binary
 

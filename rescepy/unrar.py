@@ -21,7 +21,7 @@ class UnRAR(object):
     def extract(self, opts='-ierr -o+ -y'):
         if self.password is not None:
             opts += ' -p%s' % re.escape(self.password)
-        sp = subprocess.Popen('%s x \'%s\' %s --' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp = subprocess.Popen('%s x \"%s\" %s --' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
 
         return True if sp.returncode == 0 else False

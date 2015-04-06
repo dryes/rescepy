@@ -13,7 +13,7 @@ class SRR(object):
             if os.name == 'posix':
                 self.binary = '/usr/bin/srr.py'
             elif os.name == 'nt':
-                self.binary = 'srr.exe'
+                self.binary = 'pysrr'
         else:
             self.binary = binary
 
@@ -23,25 +23,25 @@ class SRR(object):
             self.rardir = None
 
     def extract(self, opts=''):
-        sp = subprocess.Popen('%s \'%s\' %s -x -p -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp = subprocess.Popen('%s \"%s\" %s -x -p -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
 
         return True if sp.returncode == 0 else False
 
     def reconstruct(self, opts=''):
         if self.rardir is not None:
-            z = '-z \'%s\'' % (self.rardir)
+            z = '-z \"%s\"' % (self.rardir)
         else:
             z = ''
 
-        sp = subprocess.Popen('%s \'%s\' %s -c -p -r %s -y' % (self.binary, self.filename, opts, z), shell=True, stdin=subprocess.PIPE)
+        sp = subprocess.Popen('%s \"%s\" %s -c -p -r %s -y' % (self.binary, self.filename, opts, z), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
 
         return True if sp.returncode == 0 else False
 
     def verify(self, opts=''):
         print 'Verifying input files ...'
-        sp = subprocess.Popen('%s \'%s\' %s -q -r -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
+        sp = subprocess.Popen('%s \"%s\" %s -q -r -y' % (self.binary, self.filename, opts), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
 
         return True if sp.returncode == 0 else False

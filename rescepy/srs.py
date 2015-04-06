@@ -13,11 +13,14 @@ class SRS(object):
             if os.name == 'posix':
                 self.binary = '/usr/bin/srs.py'
             elif os.name == 'nt':
-                self.binary = 'srs.exe'
+                self.binary = 'pysrs'
         else:
             self.binary = binary
 
     def recreate(self, infile, outdir='Sample' + os.sep):
+        if outdir.endswith('\\'):
+            outdir = outdir[:-1]
+
         if not os.path.isdir(outdir):
             try:
                 os.makedirs(outdir)
@@ -26,7 +29,7 @@ class SRS(object):
                     print sys.exc_info()[1]
                 return False
 
-        sp = subprocess.Popen('%s \'%s\' \'%s\' -o \'%s\' -y' % (self.binary, self.filename, infile, outdir), shell=True, stdin=subprocess.PIPE)
+        sp = subprocess.Popen('%s \"%s\" \"%s\" -o \"%s\" -y' % (self.binary, self.filename, infile, outdir), shell=True, stdin=subprocess.PIPE)
         sp.communicate()
 
         return True if sp.returncode == 0 else False
