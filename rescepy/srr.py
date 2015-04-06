@@ -11,7 +11,7 @@ class SRR(object):
         self.filename = filename
         if binary == None:
             if os.name == 'posix':
-                self.binary = '/usr/bin/srr'
+                self.binary = '/usr/bin/srr.py'
             elif os.name == 'nt':
                 self.binary = 'srr.exe'
         else:
