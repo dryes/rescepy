@@ -39,5 +39,6 @@ class SRS(object):
 
         rscf = resample.sample_class_factory(rgft)
         data, tracks = rscf.load_srs(self.filename)
+        crc32 = '%X' % (data.crc32 & 0xFFFFFFFF)
 
-        return (data.name, data.size, '%X' % (data.crc32 & 0xFFFFFFFF))
+        return (data.name, data.size, crc32.rjust(8, '0'))
