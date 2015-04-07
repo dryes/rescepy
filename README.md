@@ -20,6 +20,7 @@ a cross-platform python2 script for automated srr (rescene) verification and rec
 
 * python2 resce.py [--opts] input1 [input2] ...
 
+* windows guide: http://rescene.wikidot.com/rescepy
 
 ## notes:
 
