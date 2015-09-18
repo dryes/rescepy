@@ -35,12 +35,12 @@ class SRS(object):
         return True if sp.returncode == 0 else False
 
     def info(self):
-        rgft = resample.get_file_type(self.filename)
+        rgft = resample.file_type_info(self.filename)
         if rgft == 'Unknown':
             print '\'%s\' is unknown file type.' % (self.filename)
             return False
 
-        rscf = resample.sample_class_factory(rgft)
+        rscf = resample.sample_class_factory(str(rgft))
         data, tracks = rscf.load_srs(self.filename)
         crc32 = '%X' % (data.crc32 & 0xFFFFFFFF)
 
