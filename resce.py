@@ -94,7 +94,7 @@ def getsubsfiles():
     subsfiles = []
     for r, s, f in os.walk(os.getcwd()):
         for subs in f:
-            if re.search(r'(\b(vob)?sub(?!bed|marine|par)(title)?s?[._-]?.*\.(r(ar|\d+)|sfv|srt|idx|sub|srr)|\.(srt|idx|sub))$', subs, re.IGNORECASE) is not None:
+            if re.search(r'(\b(vob)?sub(?!bed|french|marine|par)(title)?s?[._-]?.*\.(r(ar|\d+)|sfv|srt|idx|sub|srr)|\.(srt|idx|sub))$', subs, re.IGNORECASE) is not None:
                 subsfiles.append(subs)
 
     return sorted(subsfiles)
