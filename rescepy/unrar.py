@@ -1,4 +1,4 @@
-# Author: Joseph Wiseman <joswiseman@outlook>
+# Author: Joseph Wiseman <joswiseman@cock.li>
 # URL: https://github.com/d2yes/rescepy/
 #
 # This file is part of rescepy.
