@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 
 # Author: Joseph Wiseman <joswiseman@cock.li>
-# URL: https://github.com/d2yes/rescepy/
+# URL: https://github.com/dryes/rescepy/
 #
 # This file is part of rescepy.
 #
