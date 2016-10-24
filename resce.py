@@ -464,7 +464,7 @@ def srrdbidentify(crc):
         if len(str(sys.exc_info()[1])) > 0:
             print sys.exc_info()[1]
 
-    if not response or response['resultsCount'] != 1:
+    if not response or response['resultsCount'] != '1':
         print 'not found.'
         return False
 
